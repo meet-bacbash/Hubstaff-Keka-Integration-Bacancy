@@ -162,7 +162,7 @@ def add_user():
             print(name, email, keka_id)
             hubstaff_id = hubstaff_id_sync(email=email)
             if hubstaff_id:
-                new_user = User(keka_id=keka_id, name=name, email=email, status = 1, hubstaff_id = hubstaff_id)
+                new_user = User(keka_id=keka_id, name=name, email=email, status = 1, hubstaff_id = hubstaff_id, hubstaff_name = name)
                 try:
                     db.session.add(new_user)
                     db.session.commit()
