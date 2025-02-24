@@ -36,7 +36,13 @@ def fetch_data(logger, q1, filename):
                         logger.error(f"Keka id not found for hubstaff name : {name}")
                         continue
 
-                    data = {"clock_in": row['Started'].split("+")[0], "clock_out": row['Stopped'].split("+")[0]}
+                    # Here we are doing a change in the Timings from 00:00:00 i.e. 12:00:00 AM to 00:00:10 as it for the night shift it causes trouble by adding missing swipes in the logs
+                    t1 = True
+                    if row['Started'].split("+")[0].split("T")[1] == '00:00:00' and t1:
+                        t1 = False
+                        data = {"clock_in": row['Started'].split("+")[0].split("T")[0]+"T00:00:10", "clock_out": row['Stopped'].split("+")[0]}
+                    else:
+                        data = {"clock_in": row['Started'].split("+")[0], "clock_out": row['Stopped'].split("+")[0]}
 
                     # If the name already exists in the dictionary, append the row to the list
                     if user_keka_id[0] in user_dict:
