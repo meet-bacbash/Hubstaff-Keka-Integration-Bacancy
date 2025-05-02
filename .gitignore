@@ -1,0 +1,17 @@
+.idea
+db-old.sqlite3
+extra_content.txt
+.idea
+__pycache__/
+*.pyc
+employee_logs_cron/Downloads/
+employee_logs_cron/everyday_data_queue/
+employee_logs_cron/hubstaff_details.csv
+employee_logs_cron/hubstaff_logs.log
+employee_logs_cron/keka_logs.log
+employee_logs_cron/hubstaff_cod_logs.log
+employee_logs_cron/single_payload_file.py
+employee_logs_cron/single_payload_logs.log
+employee_logs_cron/keka_logs_for_4_emp.txt
+flask.log
+flask_session/
