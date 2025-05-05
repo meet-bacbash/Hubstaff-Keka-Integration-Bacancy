@@ -1,5 +1,5 @@
 """
-fetch_data_file will extract the employee logs from the file in downloads
+fetch_data_file_cod will extract the employee logs from the file in cod_downloads
 """
 import csv
 import sqlite3
@@ -9,7 +9,7 @@ connection = sqlite3.connect('../db.sqlite3')
 cursor = connection.cursor()
 user_dict = {}
 
-def fetch_data(logger, q1, filename):
+def fetch_data_cod(logger, q1, filename):
     """
 
     :param logger:
@@ -19,7 +19,7 @@ def fetch_data(logger, q1, filename):
 
     """
 
-    with open(f'Downloads/{filename}', mode ='r', encoding="utf-8")as file:
+    with open(f'cod_downloads/{filename}', mode ='r', encoding="utf-8")as file:
         csv_reader = csv.DictReader(file)
         with tqdm(csv_reader,desc="Fetching Data from CSV file", unit="rows") as pbar:
             for row in csv_reader:
@@ -27,13 +27,12 @@ def fetch_data(logger, q1, filename):
                     name = row['Member']  # Assuming 'name' is the column with the names
 
                     cursor.execute('''
-                    SELECT keka_id FROM users where hubstaff_name = ?
+                    SELECT keka_id FROM users where hubstaff_name = ? and cod_user = 1
                     ''', (name,))
 
                     user_keka_id = cursor.fetchone()
 
                     if not user_keka_id:
-                        logger.error(f"Keka id not found for hubstaff name : {name}")
                         continue
 
                     # Here we are doing a change in the Timings from 00:00:00 i.e. 12:00:00 AM to 00:00:10 as it for the night shift it causes trouble by adding missing swipes in the logs
