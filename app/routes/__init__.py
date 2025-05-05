@@ -216,6 +216,7 @@ def edit_user():
             print(data['keka_id'])
             user = User.query.filter(User.keka_id == data['keka_id']).first()
             user.name = data['name']
+            user.hubstaff_name = data['name']
             user.email = data['email']
             if user:
                 try:
