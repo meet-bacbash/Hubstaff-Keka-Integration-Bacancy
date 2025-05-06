@@ -40,12 +40,18 @@ if filename:
     logger1 = setup_logger('hubstaff_logger', 'hubstaff_logs.log')
     fetch_data(logger=logger1, q1=q1, filename=filename)
 
-if cod_filename:
-    from fetch_data_file_cod import fetch_data_cod
-    logger1 = setup_logger('hubstaff_logger_cod', 'hubstaff_cod_logs.log')
-    fetch_data_cod(logger=logger1, q1=q1, filename=cod_filename)
-
-if filename and cod_filename:
+if filename:
     from keka_logs import keka_main
     logger2 = setup_logger('keka_logger', 'keka_logs.log')
+    keka_main(logger=logger2,q1=q1)
+
+
+if cod_filename:
+    from fetch_data_file_cod import fetch_data_cod
+    logger3 = setup_logger('hubstaff_logger_cod', 'hubstaff_cod_logs.log')
+    fetch_data_cod(logger=logger1, q1=q1, filename=cod_filename)
+
+if cod_filename:
+    from keka_logs import keka_main
+    logger4 = setup_logger('keka_logger', 'keka_logs.log')
     keka_main(logger=logger2,q1=q1)
