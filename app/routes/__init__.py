@@ -16,6 +16,7 @@ from app.token.auth_middleware import token_required,token_already_exist
 from app.hubstaff import hubstaff_id_sync
 
 DOWNLOADS_FOLDER = os.getcwd()+"/employee_logs_cron/Downloads"
+DOWNLOADS_FOLDER_COD = os.getcwd()+"/employee_logs_cron/cod_downloads"
 
 # AUTH ROUTES
 
@@ -45,6 +46,7 @@ def log_in():
             data = request.form.to_dict()
             username = data['username']
             password = data['password']
+            project = data['project']
             user = Credentials.query.filter(Credentials.username == username).first()
             if user:
                 original_password = user.password
@@ -59,6 +61,7 @@ def log_in():
                     response = make_response(redirect('/'))
                     response.set_cookie("Authorization", token)
                     session['username'] = username
+                    session['project'] = project
                     return response
                 else:
                     flash("Please enter valid username and password")
@@ -123,6 +126,7 @@ def user_details():
         Response: Renders the user details page.
     """
     username = session.get('username')
+    project = session.get('project')
     if request.method == 'POST':
         if 'delete-button' in request.form:
             data = request.form.to_dict()
@@ -138,7 +142,11 @@ def user_details():
                     flash("Error occurred while deleting user! Please try again later")
             else:
                 flash("User not found")
-    users = User.query.all()
+    if project == 'COD':
+        users = User.query.filter(User.cod_user == 1).all()
+    else:
+        users = User.query.filter(User.cod_user == 0).all()
+
     return render_template('user-details.html', users = users, page_name = "home", username = username)
 
 @app.route('/add_user', methods=['GET','POST'])
@@ -159,10 +167,13 @@ def add_user():
             name = data['name']
             email = data['email']
             keka_id = data['keka_id']
-            print(name, email, keka_id)
-            hubstaff_id = hubstaff_id_sync(email=email)
+            hubstaff_id = hubstaff_id_sync(email=email, project=session.get('project'))
+            if session.get('project') == 'COD':
+                cod_user = 1
+            else:
+                cod_user = 0
             if hubstaff_id:
-                new_user = User(keka_id=keka_id, name=name, email=email, status = 1, hubstaff_id = hubstaff_id, hubstaff_name = name)
+                new_user = User(keka_id=keka_id, name=name, email=email, status = 1, hubstaff_id = hubstaff_id, hubstaff_name = name, cod_user = cod_user)
                 try:
                     db.session.add(new_user)
                     db.session.commit()
@@ -175,7 +186,7 @@ def add_user():
                     db.session.rollback()  # Rollback if there's an error
                     flash("Error occurred while adding new user! Please try again later")
             else:
-                new_user = User(keka_id=keka_id, name=name, email=email)
+                new_user = User(keka_id=keka_id, name=name, email=email, cod_user = cod_user)
                 try:
                     db.session.add(new_user)
                     db.session.commit()
@@ -242,7 +253,10 @@ def view_timesheets():
     Returns:
         Response: Renders the timesheet page with a list of timesheets.
     """
-    dir_list = [os.path.splitext(file)[0] for file in os.listdir(DOWNLOADS_FOLDER) if os.path.isfile(os.path.join(DOWNLOADS_FOLDER, file))]
+    if session.get('project') == 'COD':
+        dir_list = [os.path.splitext(file)[0] for file in os.listdir(DOWNLOADS_FOLDER_COD) if os.path.isfile(os.path.join(DOWNLOADS_FOLDER_COD, file))]
+    else:
+        dir_list = [os.path.splitext(file)[0] for file in os.listdir(DOWNLOADS_FOLDER) if os.path.isfile(os.path.join(DOWNLOADS_FOLDER, file))]
     return render_template('timesheet-page.html', timesheets = dir_list, page_name = "timesheet")
 
 @app.route('/download/<filename>')
@@ -257,7 +271,10 @@ def download_file(filename):
         Response: Sends the file as an attachment for download.
     """
     # Serve the file for download
-    return send_from_directory(DOWNLOADS_FOLDER, filename, as_attachment=True)
+    if session.get('project') == 'COD':
+        return send_from_directory(DOWNLOADS_FOLDER_COD, filename, as_attachment=True)
+    else:
+        return send_from_directory(DOWNLOADS_FOLDER, filename, as_attachment=True)
 
 
 # ERROR ROUTES

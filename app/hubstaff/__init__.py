@@ -3,14 +3,13 @@ import requests
 import dotenv
 from dotenv import load_dotenv
 from sqlalchemy import false
-
 from app.extensions.db import db
-from app.hubstaff.get_hubstaff_token import get_access_token
-
+from app.hubstaff.get_hubstaff_token import get_access_token, get_access_token_cod
 
 bac_org_id = 422392
+bac_org_id_cod = 666179
 
-def hubstaff_id_sync(email):
+def hubstaff_id_sync(email, project):
     """
 
     :return:
@@ -18,12 +17,16 @@ def hubstaff_id_sync(email):
     # dotenv
     dotenv_file = dotenv.find_dotenv()
     load_dotenv()
+    if project == 'COD':
+        url = f'https://api.hubstaff.com/v2/organizations/{bac_org_id_cod}/members'
+    else:
+        url = f'https://api.hubstaff.com/v2/organizations/{bac_org_id}/members'
 
-    url = f'https://api.hubstaff.com/v2/organizations/{bac_org_id}/members'
+    acc_token = os.getenv('access_token_cod') if project == 'COD' else os.getenv('access_token')
 
     # Headers with the PAT
     headers = {
-        'Authorization': f"Bearer {os.getenv('access_token')}",
+        'Authorization': f"Bearer {acc_token}",
         'Content-Type': 'application/json'
     }
 
@@ -45,7 +48,10 @@ def hubstaff_id_sync(email):
             return 0
     elif response.status_code == 401 and response.json()['error'] == "invalid_token":
         print("Invalid token")
-        os.environ['access_token'] = get_access_token()
-        return hubstaff_id_sync(email)
+        if project == 'COD':
+            os.environ['access_token_cod'] = get_access_token_cod()
+        else:
+            os.environ['access_token'] = get_access_token()
+        return hubstaff_id_sync(email, project)
     else:
         print("Error fetching hubstaff account")

@@ -16,6 +16,7 @@ class User(db.Model):
     hubstaff_id = db.Column(db.String(30))
     status = db.Column(db.BIGINT, default = 0)
     hubstaff_name = db.Column(db.String(30))
+    cod_user = db.Column(db.BIGINT, default = 0)
 
 class Credentials(db.Model):
     """

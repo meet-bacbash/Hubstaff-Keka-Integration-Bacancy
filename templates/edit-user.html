@@ -134,6 +134,12 @@
                             <span class="badge bg-label-warning me-1">Pending</span>
                             {% endif %}
                           </div>
+                          {% if user_detail.cod_user == 1 %}
+                          <div class="mb-3 col-md-6">
+                            <label class="form-label">Project : </label>
+                            <span class="badge bg-label-primary me-1">COD</span>
+                          </div>
+                          {% endif %}
                         <div class="mt-2">
                           <button type="submit" name="update-details" class="btn btn-primary me-2">Update Details</button>
                           <a href="/" onclick="event.preventDefault(); window.location.href='/';"><button class="btn btn-outline-secondary">Cancel</button></a>
